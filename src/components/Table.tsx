@@ -94,16 +94,40 @@ const Table = () => {
     }
   }, [tableItems]);
 
-  const handleSubmit = () => {
-    const N = Math.min(tocheck, tableItems.length);
-
-    const newCheckedItems = [...checkedItems, ...tableItems.slice(0, N).map((item: any) => item.id)];
-    setCheckedItems(newCheckedItems);
-    localStorage.setItem('selectedIds', JSON.stringify(newCheckedItems));
-    setTocheck(prev => prev - N);
+  // This fucntion is for updating the checked itrms when user clicks submit on overlay panel
+  const handleSubmit = async () => {
+    const N: number = tocheck;
+    let selectedCount: number = 0;
+    let currentPage: number = page;
+    const selectedIdsSet = new Set(checkedItems); // To avoid duplicates
+    setTocheck(0);
+  
+    while (selectedCount < N) {
+      const response = await getData(currentPage);
+      if (!response || !response.data) break;
+  
+      const fetchedData = response.data;
+  
+      for (let i = 0; i < fetchedData.length && selectedCount < N; i++) {
+        const item = fetchedData[i];
+        if (!selectedIdsSet.has(item.id)) {
+          selectedIdsSet.add(item.id);
+        }
+        selectedCount++;
+      }
+  
+      if (selectedCount >= N) break;
+  
+      currentPage++;
+      if (currentPage > Math.ceil(totalRecords / 12)) break; // Stop if end reached
+    }
+  
+    const finalChecked = Array.from(selectedIdsSet);
+    setCheckedItems(finalChecked);
+    localStorage.setItem('selectedIds', JSON.stringify(finalChecked));
     op.current?.hide();
-  }
-
+  };
+  
 
   const handleChange = (e : any) => {
     setTocheck(e.target.value);
