@@ -101,7 +101,9 @@ const Table = () => {
     let currentPage: number = page;
     const selectedIdsSet = new Set(checkedItems);
     setTocheck(0);
-  
+
+    // I am fetching api and here and not using any variable to store the data
+    // due to the memory issue
     while (selectedCount < N) {
       const response = await getData(currentPage);
       if (!response || !response.data) break;
