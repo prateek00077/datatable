@@ -1,14 +1,18 @@
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Paginator, type PaginatorPageChangeEvent } from 'primereact/paginator';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import 'primeicons/primeicons.css';
+        
 
 const Table = () => {
-  const [tableItems, setTableItems] = useState([]);
+  const [tableItems, setTableItems] = useState<any[]>([]);
   const [checkedItems, setCheckedItems] = useState<number[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [tocheck, setTocheck] = useState<number>(0);
 
   // function to fetch the data from the api
   const getData = async (page: number) => {
@@ -90,11 +94,39 @@ const Table = () => {
     }
   }, [tableItems]);
 
+  const handleSubmit = () => {
+    const N = Math.min(tocheck, tableItems.length);
+
+    const newCheckedItems = [...checkedItems, ...tableItems.slice(0, N).map((item: any) => item.id)];
+    setCheckedItems(newCheckedItems);
+    localStorage.setItem('selectedIds', JSON.stringify(newCheckedItems));
+    setTocheck(prev => prev - N);
+    op.current?.hide();
+  }
+
+
+  const handleChange = (e : any) => {
+    setTocheck(e.target.value);
+  }
+
+  const op = useRef<OverlayPanel>(null);
+
   return (
     <>
       <div className="p-4 sm:p-6 lg:p-8 max-w-screen-xl mx-auto">
         <div className="bg-white rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
+          <i className="pi pi-chevron-down cursor-pointer" onClick={(e)=> op.current?.toggle(e)} style={{ color: 'slateblue' }}></i>
+          <OverlayPanel ref={op}>
+            <div className = 'flex flex-col gap-2 bg-white p-4 border border-5 border-black'>
+              <div className = 'pb-2 flex items-center'>
+                <input onChange={handleChange} className='border border-gray-700 p-2' type="text" />
+              </div>
+              <div className = 'flex items-center justify-center bg-blue-500'>
+                <button onClick={handleSubmit}>Submit</button>
+              </div>
+            </div>
+          </OverlayPanel>
             {loading ? (
               <div className="flex justify-center items-center h-40 text-lg text-gray-500">
                 Loading data...
