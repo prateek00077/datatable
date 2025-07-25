@@ -99,7 +99,7 @@ const Table = () => {
     const N: number = tocheck;
     let selectedCount: number = 0;
     let currentPage: number = page;
-    const selectedIdsSet = new Set(checkedItems); // To avoid duplicates
+    const selectedIdsSet = new Set(checkedItems);
     setTocheck(0);
   
     while (selectedCount < N) {
@@ -119,7 +119,7 @@ const Table = () => {
       if (selectedCount >= N) break;
   
       currentPage++;
-      if (currentPage > Math.ceil(totalRecords / 12)) break; // Stop if end reached
+      if (currentPage > Math.ceil(totalRecords / 12)) break;
     }
   
     const finalChecked = Array.from(selectedIdsSet);
